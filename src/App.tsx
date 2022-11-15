@@ -1,34 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import React, {FC, ChangeEvent, useState} from "react";
+import TodoTask from "./Components/TodoTask";
+import { ITask } from "./Interfaces";
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
 
-  return (
+  const [task, setTask] = useState<string>("");
+  const [deadLine, setDeadLine] = useState<number>(0);
+  const [todo, setTodo] = useState<ITask[]>([]);  
+
+  const addTask = ():void =>{
+    const newTask = {
+      taskName:task,
+      deadLine:deadLine
+    };
+    setTodo([...todo, newTask])
+    setTask("");
+    setDeadLine(0);
+  }
+
+  const handleChange = (event:ChangeEvent<HTMLInputElement>): void => {
+    if (event.target.name === "task"){
+      setTask(event.target.value);
+    }else {
+      setDeadLine(Number(event.target.value));
+    }
+  }
+  
+  const completeTask = (taskNameToDelete:string):void => {
+    setTodo(todo.filter((task) => {
+      return task.taskName != taskNameToDelete;
+    }))
+  }
+
+  return(
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div className="header">
+        <div className="inputContainer">
+          <input type="text" placeholder="Task.." name="task" value={task} onChange={handleChange}/>
+          <input type="number" placeholder="Deadline(in days)" value={deadLine} onChange={handleChange}/>
+        </div>
+        <button onClick={addTask}>Add Task</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div className="todoList">
+         {todo.map((task:ITask, key: number) => {
+           return <TodoTask key={key} task={task} completeTask={completeTask}/>
+         })}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </div>
   )
 }
 
-export default App
+export default App;
